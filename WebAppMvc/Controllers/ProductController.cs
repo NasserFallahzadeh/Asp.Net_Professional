@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebAppMvc.Models.Entities;
 using WebAppMvc.Models.Services;
 
 namespace WebAppMvc.Controllers
@@ -22,7 +23,11 @@ namespace WebAppMvc.Controllers
         // GET: ProductController/Details/5
         public ActionResult Details(int id)
         {
-            return View(_productService.GetById(id));
+            var product=_productService.GetById(id);
+            if (product == null)
+                return NotFound();
+
+            return View(product);
         }
 
         // GET: ProductController/Create
@@ -34,10 +39,14 @@ namespace WebAppMvc.Controllers
         // POST: ProductController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create(Product product)
         {
             try
             {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                _productService.Add(product);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -70,7 +79,7 @@ namespace WebAppMvc.Controllers
         // GET: ProductController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            return View(_productService.GetById(id));
         }
 
         // POST: ProductController/Delete/5
