@@ -28,14 +28,18 @@ namespace WebAppMvc.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            return Ok(_productService.GetById(id));
+            var product = _productService.GetById(id);
+            if (product==null)
+                return NotFound();
+            return Ok(product);
         }
 
         // POST api/<ProductApiController>
         [HttpPost]
         public IActionResult Post([FromBody] Product value)
         {
-            return Ok(_productService.Add(value));
+            var product = _productService.Add(value);
+            return CreatedAtAction(nameof(Get), new { id = product.Id });
         }
 
         // PUT api/<ProductApiController>/5
@@ -49,6 +53,10 @@ namespace WebAppMvc.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            var product = _productService.GetById(id);
+            if (product == null)
+                return NotFound();
+
             _productService.Remove(id);
             return Ok(true);
         }
